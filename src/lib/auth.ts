@@ -1,6 +1,6 @@
+import 'dotenv/config'
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import 'dotenv/config'
 import { db } from "@/drizzle";
 import * as schema from '../drizzle/schema'
 
@@ -11,7 +11,8 @@ export const auth = betterAuth(
             schema
         }),
         emailAndPassword: {
-            enabled: true
+            enabled: true,
+            autoSignIn : true
         },
 
     }

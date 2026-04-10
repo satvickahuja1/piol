@@ -1,12 +1,15 @@
-'use server'
+import { requireAuth } from "@/lib/auth-util"
+import { caller } from "@/trpc/server"
 
-import React from "react"
+
 
 const page = async () => {
-  
+  await requireAuth()
+ const res = await caller.lover()
+ console.log(res)
   return (
-    <div className="bg-red-500 font-bold">
-     
+    <div>
+
     </div>
   )
 }
