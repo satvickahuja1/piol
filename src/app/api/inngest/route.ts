@@ -1,9 +1,11 @@
 // src/app/api/inngest/route.ts
 import { serve } from "inngest/next";
 import { inngest } from "../../../inngest/client";
-import { execute } from "../../../inngest/functions";
+import { goai } from "../../../inngest/functions";
 
 export const { GET, POST, PUT } = serve({
   client: inngest,
-  functions: [execute],
+  functions: [goai
+    
+  ],
 });
