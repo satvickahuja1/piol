@@ -1,4 +1,4 @@
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import { pgTable, text, timestamp, boolean, index } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
@@ -72,6 +72,11 @@ export const verification = pgTable(
   },
   (table) => [index("verification_identifier_idx").on(table.identifier)],
 );
+
+export const workflow = pgTable("workflow", {
+  id: text('id').primaryKey().default(sql`gen_random_uuid()`),
+  name: text('name')
+})
 
 export const userRelations = relations(user, ({ many }) => ({
   sessions: many(session),

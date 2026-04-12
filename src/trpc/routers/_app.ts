@@ -1,13 +1,24 @@
 import { z } from 'zod';
 import { baseProcedure, createTRPCRouter, protectedProcedure } from '../init';
 import { eq } from 'drizzle-orm';
-import { user } from '@/drizzle/schema';
+import { user, workflow } from '@/drizzle/schema';
 import { db } from '@/drizzle';
 
+import { openai } from '@ai-sdk/openai';
+import { model } from '@/lib/ai';
+import { inngest } from '@/inngest/client';
 
 export const appRouter = createTRPCRouter({
-  lover: protectedProcedure.query(async ({ ctx }) => {
-    return await db.select().from(user).where(eq(user.id, ctx.auth.user.id))
+  
+
+  workflow: protectedProcedure.query(async ({ ctx }) => {
+    return await db.select().from(workflow).limit(75)
+  }),
+  createWorkFlow: protectedProcedure.mutation(() => {
+    return db.insert(workflow).values({ name: "create workflow" })
+  }),
+  deleteDB: protectedProcedure.mutation(async () => {
+    return db.delete(workflow)
   })
 });
 

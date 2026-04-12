@@ -1,15 +1,22 @@
-import { requireAuth } from "@/lib/auth-util"
-import { caller } from "@/trpc/server"
 
+'use client'
 
+import { useTRPC } from "@/trpc/client"
+import { useMutation } from "@tanstack/react-query"
+import { toast } from "sonner"
 
-const page = async () => {
-  await requireAuth()
- const res = await caller.lover()
- console.log(res)
+const page =  () => {
+  const trpc = useTRPC()
+  const res = useMutation(trpc.testAi.mutationOptions({onSuccess : ()=>{
+    toast('job queued successfully')
+  }}))
   return (
     <div>
-
+      <button onClick={()=>{res.mutate()}}>
+        <div></div>
+        resthrt
+      </button>
+        
     </div>
   )
 }
