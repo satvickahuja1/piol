@@ -1,27 +1,56 @@
-import { db } from '@/drizzle';
-import { auth } from '@/lib/auth';
-import { initTRPC, TRPCError } from '@trpc/server';
-import { headers } from 'next/headers';
-import { cache } from 'react';
+import { db } from "@/drizzle";
+import { auth } from "@/lib/auth";
+import { polarClient } from "@/lib/polar";
+import { initTRPC, TRPCError } from "@trpc/server";
+import { headers } from "next/headers";
+import { cache } from "react";
 
+export const createTRPCContext = async () => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  return { db, auth: session };
+};
 
-export const createTRPCContext = cache(async () => {
-  return { db };
-});
+export type Context = Awaited<ReturnType<typeof createTRPCContext>>;
 
-
-export type Context = Awaited<ReturnType<typeof createTRPCContext>>
-
-const t = initTRPC.context<Context>().create()
+const t = initTRPC.context<Context>().create();
 
 // Base router and procedure helpers
 export const createTRPCRouter = t.router;
 export const createCallerFactory = t.createCallerFactory;
 export const baseProcedure = t.procedure;
 export const protectedProcedure = baseProcedure.use(async ({ ctx, next }) => {
-  const session = await auth.api.getSession({ headers: await headers() })
-  if (!session) {
-    throw new TRPCError({ code: 'UNAUTHORIZED', message: "unauthorized user" })
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  
+  if (!session?.session) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "unauthorized user is takingg command",
+    });
   }
-  return next({ ctx: { ...ctx, auth: session } })
-})
+  return next({ ctx: { ...ctx, auth: session } });
+});
+
+export const premiumProcedure = protectedProcedure.use(
+  async ({ ctx, next }) => {
+    if (!ctx.auth) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "not alloed for services",
+      });
+    }
+    const res = await polarClient.customers.getStateExternal({
+      externalId: ctx.auth.user.id,
+    });
+    if (!res.activeSubscriptions || res.activeSubscriptions.length === 0) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "not subscribed to services",
+      });
+    }
+    return next({ ctx: { ...ctx, isSubscribed: true } });
+  },
+);

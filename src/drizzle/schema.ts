@@ -74,13 +74,22 @@ export const verification = pgTable(
 );
 
 export const workflow = pgTable("workflow", {
-  id: text('id').primaryKey().default(sql`gen_random_uuid()`),
-  name: text('name')
-})
+  id: text("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  userId: text("userId").references(() => user.id, { onDelete: "cascade" }),
+  name: text("name"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => /* @__PURE__ */ new Date())
+    .notNull(),
+});
 
 export const userRelations = relations(user, ({ many }) => ({
   sessions: many(session),
   accounts: many(account),
+  workflows : many(workflow)
 }));
 
 export const sessionRelations = relations(session, ({ one }) => ({
@@ -97,3 +106,9 @@ export const accountRelations = relations(account, ({ one }) => ({
   }),
 }));
 
+export const workflowReltions = relations(workflow, ({ one }) => ({
+  user: one(user, {
+    fields: [workflow.userId],
+    references: [user.id],
+  }),
+}));

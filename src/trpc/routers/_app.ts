@@ -1,32 +1,27 @@
-import { z } from 'zod';
-import { baseProcedure, createTRPCRouter, protectedProcedure } from '../init';
-import { eq } from 'drizzle-orm';
-import { user, workflow } from '@/drizzle/schema';
-import { db } from '@/drizzle';
-
-import { openai } from '@ai-sdk/openai';
-import { model } from '@/lib/ai';
-import { inngest } from '@/inngest/client';
-import { TRPCBuilder, TRPCError } from '@trpc/server';
+import { auth } from "@/lib/auth";
+import { createTRPCRouter, protectedProcedure } from "../init";
+import { polarClient } from "@/lib/polar";
+import { TRPCError } from "@trpc/server";
+import { workflowRouter } from "@/features/workflow/server/router";
 
 export const appRouter = createTRPCRouter({
-  testAi: protectedProcedure.mutation(async ({ ctx }) => {
-    // throw new TRPCError({ code: "BAD_REQUEST", message: "something went wrong" })
+  checkSubs: protectedProcedure.query(async ({ ctx }) => {
+    
+    const res = await polarClient.customers.getStateExternal({
+      externalId : ctx.auth?.user.id
+    });
 
-    await inngest.send({ name: 'go/ai' })
-    return { success: true, message: 'Job Queued' }
-  }),
+    const activeSub = res.activeSubscriptions[0];
 
-  workflow: protectedProcedure.query(async ({ ctx }) => {
-    return await db.select().from(workflow).limit(75)
+    if (!activeSub) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "not subscribed",
+      });
+    }
+      return activeSub
   }),
-  createWorkFlow: protectedProcedure.mutation(() => {
-    return db.insert(workflow).values({ name: "create workflow" })
-  }),
-  deleteDB: protectedProcedure.mutation(async () => {
-    return db.delete(workflow)
-  })
+  workflow : workflowRouter
 });
-
 
 export type AppRouter = typeof appRouter;
