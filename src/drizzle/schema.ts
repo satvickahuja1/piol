@@ -1,5 +1,13 @@
 import { relations, sql } from "drizzle-orm";
-import { pgTable, text, timestamp, boolean, index } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  timestamp,
+  boolean,
+  index,
+  jsonb,
+  unique,
+} from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -78,7 +86,54 @@ export const workflow = pgTable("workflow", {
     .primaryKey()
     .default(sql`gen_random_uuid()`),
   userId: text("userId").references(() => user.id, { onDelete: "cascade" }),
+
   name: text("name"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
+export enum NodeType {
+  INITIAL,
+  MANUAL_TRIGGER,
+  HTTP_REQUEST,
+}
+
+export const nodes = pgTable("node", {
+  id: text("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  name: text("name"),
+  position: jsonb("position"),
+  data: jsonb("data"),
+  type: text("type").$type<NodeType>(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => /* @__PURE__ */ new Date())
+    .notNull(),
+  workflowId: text("workflowId").references(() => workflow.id, {
+    onDelete: "cascade",
+  }),
+});
+
+export const connection = pgTable("connection", {
+  id: text("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  fromOutput: text("fromoutput"),
+  toInput: text("toInput"),
+  fromnodeId: text("fromNodeId").references(() => nodes.id, {
+    onDelete: "cascade",
+  }),
+  tonodeId: text("toNodeId").references(() => nodes.id, {
+    onDelete: "cascade",
+  }),
+  workflowId: text("workflowId").references(() => workflow.id, {
+    onDelete: "cascade",
+  }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
@@ -89,7 +144,7 @@ export const workflow = pgTable("workflow", {
 export const userRelations = relations(user, ({ many }) => ({
   sessions: many(session),
   accounts: many(account),
-  workflows : many(workflow)
+  workflows: many(workflow),
 }));
 
 export const sessionRelations = relations(session, ({ one }) => ({
@@ -106,9 +161,33 @@ export const accountRelations = relations(account, ({ one }) => ({
   }),
 }));
 
-export const workflowReltions = relations(workflow, ({ one }) => ({
+export const workflowRelations = relations(workflow, ({ one, many }) => ({
   user: one(user, {
     fields: [workflow.userId],
     references: [user.id],
   }),
+  node: many(nodes),
+  connection: many(connection),
+}));
+
+export const nodeRelations = relations(nodes, ({ one }) => ({
+  workflow: one(workflow, {
+    fields: [nodes.workflowId],
+    references: [workflow.id],
+  }),
+}));
+export const connectionRelations = relations(connection, ({ one, many }) => ({
+  workflow: one(workflow, {
+    fields: [connection.workflowId],
+    references: [workflow.id],
+  }),
+  fromnode: one(nodes, {
+    fields: [connection.fromnodeId],
+    references: [nodes.id],
+  }),
+  tonode: one(nodes, {
+    fields: [connection.tonodeId],
+    references: [nodes.id],
+  }),
+  node: many(nodes),
 }));

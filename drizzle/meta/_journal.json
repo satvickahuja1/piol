@@ -5,36 +5,15 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1775640895712,
-      "tag": "0000_cooing_skreet",
+      "when": 1778406406926,
+      "tag": "0000_wet_pyro",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "7",
-      "when": 1775642172850,
-      "tag": "0001_eager_masque",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1775796086334,
-      "tag": "0002_condemned_dragon_lord",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1775798047873,
-      "tag": "0003_curved_starjammers",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1776582612205,
-      "tag": "0004_living_dark_beast",
+      "when": 1778410982718,
+      "tag": "0001_curious_rocket_racer",
       "breakpoints": true
     }
   ]

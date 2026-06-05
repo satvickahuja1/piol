@@ -1,6 +1,7 @@
 // import from "@/features/workflow/components/entityHeader";
+import { Button } from "@/components/ui/button";
 import { WorkflowList } from "@/features/workflow/components/workflow";
-import { WorkflowContainer } from "@/features/workflow/components/workflowHeader";
+import { WorkflowContainer, WorkflowError, WorkflowLoading } from "@/features/workflow/components/workflowHeader";
 import { workflowParamsLoader } from "@/features/workflow/server/param-loader";
 import { prefetchWorkflow } from "@/features/workflow/server/prefetch";
 import { HydrateClient } from "@/trpc/server";
@@ -18,8 +19,8 @@ const Workflow =  async ({searchParams}:Props) => {
   return (
     <WorkflowContainer>
       <HydrateClient>
-        <ErrorBoundary fallback={<div>Something went wrong</div>}>
-          <Suspense fallback={<div>Loading...</div>}>
+        <ErrorBoundary fallback={<WorkflowError/>}>
+          <Suspense fallback={<WorkflowLoading/>}>
             <WorkflowList />
           </Suspense>
         </ErrorBoundary>

@@ -1,6 +1,6 @@
 {
-  "id": "4beb725b-b321-4b0a-9ed4-245ddc8c951a",
-  "prevId": "4ed95620-2e6a-429e-bf34-bf6d69230e89",
+  "id": "f06edbf1-2fa3-4445-8f8f-4861fbe044df",
+  "prevId": "da982fdc-336d-42f6-8adf-26543621189e",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -112,6 +112,188 @@
           "tableTo": "user",
           "columnsFrom": [
             "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.connection": {
+      "name": "connection",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "fromoutput": {
+          "name": "fromoutput",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "toInput": {
+          "name": "toInput",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fromNodeId": {
+          "name": "fromNodeId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "toNodeId": {
+          "name": "toNodeId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "workflowId": {
+          "name": "workflowId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "connection_fromNodeId_node_id_fk": {
+          "name": "connection_fromNodeId_node_id_fk",
+          "tableFrom": "connection",
+          "tableTo": "node",
+          "columnsFrom": [
+            "fromNodeId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "connection_toNodeId_node_id_fk": {
+          "name": "connection_toNodeId_node_id_fk",
+          "tableFrom": "connection",
+          "tableTo": "node",
+          "columnsFrom": [
+            "toNodeId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "connection_workflowId_workflow_id_fk": {
+          "name": "connection_workflowId_workflow_id_fk",
+          "tableFrom": "connection",
+          "tableTo": "workflow",
+          "columnsFrom": [
+            "workflowId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.node": {
+      "name": "node",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "position": {
+          "name": "position",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data": {
+          "name": "data",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "workflowId": {
+          "name": "workflowId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "node_workflowId_workflow_id_fk": {
+          "name": "node_workflowId_workflow_id_fk",
+          "tableFrom": "node",
+          "tableTo": "workflow",
+          "columnsFrom": [
+            "workflowId"
           ],
           "columnsTo": [
             "id"
@@ -353,6 +535,66 @@
         }
       },
       "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.workflow": {
+      "name": "workflow",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "userId": {
+          "name": "userId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "workflow_userId_user_id_fk": {
+          "name": "workflow_userId_user_id_fk",
+          "tableFrom": "workflow",
+          "tableTo": "user",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},

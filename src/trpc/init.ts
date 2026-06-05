@@ -4,6 +4,8 @@ import { polarClient } from "@/lib/polar";
 import { initTRPC, TRPCError } from "@trpc/server";
 import { headers } from "next/headers";
 import { cache } from "react";
+import superjson from "superjson";
+
 
 export const createTRPCContext = async () => {
   const session = await auth.api.getSession({
@@ -14,7 +16,9 @@ export const createTRPCContext = async () => {
 
 export type Context = Awaited<ReturnType<typeof createTRPCContext>>;
 
-const t = initTRPC.context<Context>().create();
+const t = initTRPC.context<Context>().create({
+  transformer : superjson
+});
 
 // Base router and procedure helpers
 export const createTRPCRouter = t.router;
@@ -39,7 +43,7 @@ export const premiumProcedure = protectedProcedure.use(
     if (!ctx.auth) {
       throw new TRPCError({
         code: "FORBIDDEN",
-        message: "not alloed for services",
+        message: "not allowed for services",
       });
     }
     const res = await polarClient.customers.getStateExternal({

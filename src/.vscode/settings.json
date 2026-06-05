@@ -1,0 +1,25 @@
+{
+    "files.exclude": {
+        "**/.git": false,
+        "**/.svn": false,
+        "**/.hg": false,
+        "**/.DS_Store": false,
+        "**/Thumbs.db": false,
+        "": false,
+        "**/instrumentation-client.ts": false,
+        "*.ts": false,
+        "instrumentation-client.ts": false,
+        "**/*.ts": false,
+        "app/(auth)": true,
+        "**/(auth)": true,
+        "app/*.*": true,
+        "(auth)": true,
+        "app/api": true,
+        "**/api": true,
+        "api": true,
+        "app/sentry-example-page": true,
+        "**/sentry-example-page": true,
+        "sentry-example-page": true
+    },
+    "explorerExclude.backup": {}
+}
