@@ -14,7 +14,7 @@ import { TRPCError } from "@trpc/server";
 
 // You can switch to premiumProcedure if needed
 export const workflowRouter = createTRPCRouter({
-  getOne: premiumProcedure
+  getOne: protectedProcedure
     .input(
       z.object({
         id: z.string(),
@@ -29,7 +29,7 @@ export const workflowRouter = createTRPCRouter({
           connection: true,
         },
       });
-      const nodes : Node[] = (workflowg?.node ?? []).map((node) => ({
+      const nodes: Node[] = (workflowg?.node ?? []).map((node) => ({
         id: node.id,
         type: node.type || "",
         position: node.position as { x: number; y: number },
@@ -51,7 +51,7 @@ export const workflowRouter = createTRPCRouter({
         edges,
       };
     }),
-  getMany: premiumProcedure
+  getMany: protectedProcedure
     .input(
       z.object({
         page: z.number().default(PAGINATION.DEFAULT_PAGE),
@@ -102,7 +102,7 @@ export const workflowRouter = createTRPCRouter({
         search,
       };
     }),
-  create: premiumProcedure
+  create: protectedProcedure
     .input(z.object({ name: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const res = generateSlug(5);
@@ -127,7 +127,7 @@ export const workflowRouter = createTRPCRouter({
         return createdWorkflow;
       });
     }),
-  updateName: premiumProcedure
+  updateName: protectedProcedure
     .input(z.object({ id: z.string(), name: z.string() }))
     .mutation(async ({ ctx, input }) => {
       return await db
@@ -138,7 +138,7 @@ export const workflowRouter = createTRPCRouter({
         )
         .returning();
     }),
-  update: premiumProcedure
+  update: protectedProcedure
     .input(
       z.object({
         id: z.string(),
@@ -146,7 +146,7 @@ export const workflowRouter = createTRPCRouter({
           z.object({
             id: z.string(),
             position: z.object({ x: z.number(), y: z.number() }),
-            type:  z.string().nullish(),
+            type: z.string().nullish(),
             data: z.record(z.string(), z.any()),
           }),
         ),
@@ -167,7 +167,7 @@ export const workflowRouter = createTRPCRouter({
         .select()
         .from(workflow)
         .where(and(eq(workflow.userId, ctx.auth.user.id), eq(workflow.id, id)));
-      if (workflows.length===0) {
+      if (workflows.length === 0) {
         throw new TRPCError({
           message: "workflow not found",
           code: "NOT_FOUND",
@@ -177,7 +177,7 @@ export const workflowRouter = createTRPCRouter({
         await tx.delete(nodes).where(eq(nodes.workflowId, id));
         await Promise.all(
           node.map(async (res) => {
-             await tx.insert(nodes).values({
+            await tx.insert(nodes).values({
               id: res.id,
               position: res.position,
               data: res.data || {},
@@ -204,7 +204,7 @@ export const workflowRouter = createTRPCRouter({
           .where(eq(workflow.id, id));
       });
     }),
-  delete: premiumProcedure
+  delete: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       return await db

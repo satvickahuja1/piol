@@ -42,6 +42,8 @@ import { NodeSelector } from "../../../components/node-selector";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { editorAtom } from "../store/atoms";
 import { useUpdateWorkflow } from "@/features/workflow/hooks/use-update-workflow";
+import { NodeType } from "@/drizzle/schema";
+import { ExecutionNodeButton } from "./execute-workflow";
 
 export const AddNodeButton = memo(() => {
   const [selector, setSelector] = useState<boolean>(false);
@@ -71,13 +73,7 @@ export const EditorLoading = () => {
   return <LoadingView message="loading editor" />;
 };
 
-export const EditorSaveButton = ({
-  workflowId,
-
-}: {
-  workflowId: string;
-  
-}) => {
+export const EditorSaveButton = ({ workflowId }: { workflowId: string }) => {
   const editor = useAtomValue(editorAtom);
   const saveWorkflow = useUpdateWorkflow();
 
@@ -87,7 +83,8 @@ export const EditorSaveButton = ({
     }
     const edge = editor.getEdges();
     const nodes = editor.getNodes();
-    const nodes1 = nodes.map((node)=>({...node , type : String(node.type)}))
+
+    const nodes1 = nodes.map((node) => ({ ...node, type: String(node.type) }));
     const edges = edge.map((edge) => {
       return {
         id: edge.id,
@@ -106,7 +103,11 @@ export const EditorSaveButton = ({
 
   return (
     <div className="ml-auto">
-      <Button onClick={handleSave} disabled={saveWorkflow.isPending} size={"sm"}>
+      <Button
+        onClick={handleSave}
+        disabled={saveWorkflow.isPending}
+        size={"sm"}
+      >
         <SaveIcon className="size-4" />
         Save
       </Button>
@@ -136,6 +137,11 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
   const { data: workflow } = useSuspenseWorkflowbyId({ id: workflowId });
   const [nodes, setNodes] = useState<Node[]>(workflow.nodes);
   const [edges, setEdges] = useState<Edge[]>(workflow.edges);
+  
+  const hasaManualTrigger = nodes.some(
+    (res) => res.type === String(NodeType.MANUAL_TRIGGER) 
+  ) 
+  
   const onNodesChange = useCallback(
     (changes: NodeChange[]) =>
       setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot)),
@@ -175,8 +181,9 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
                 onInit={setEditor}
                 proOptions={{ hideAttribution: true }}
                 nodeTypes={nodeComponents}
-                snapGrid={[10,10]}
+                snapGrid={[10, 10]}
                 snapToGrid
+                
                 panOnScroll
                 // panOnDrag={false}
                 selectionOnDrag
@@ -187,6 +194,11 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
                 <Panel position="top-right">
                   <AddNodeButton />
                 </Panel>
+                {hasaManualTrigger && 
+                <Panel position="bottom-center">
+                  <ExecutionNodeButton  workflowId={workflowId}/>
+                </Panel>
+                }
               </ReactFlow>
             </div>
           </main>

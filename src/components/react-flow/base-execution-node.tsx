@@ -47,7 +47,7 @@ export const BaseExecutionNode = memo(
               ) : (
                 <Icon size={20} />
               )}
-              {children}
+              {/* {children} */}
               <BaseHandle
                 id={"taget-1"}
                 type="source"

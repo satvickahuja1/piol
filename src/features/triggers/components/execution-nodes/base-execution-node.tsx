@@ -68,6 +68,7 @@ export const BaseTriggerNode = memo(
                 type="source"
                 position={Position.Left}
               />
+             
             </BaseNodeContent>
           </BaseNode>
         </NodeStatusIndicator>

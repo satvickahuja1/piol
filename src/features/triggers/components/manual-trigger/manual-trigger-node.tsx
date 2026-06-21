@@ -12,6 +12,7 @@ export const ManualTriggerNode = memo((props: NodeProps) => {
     <TriggerNodeDialog open={dialogopen} onOpenChange={()=>{setDialogOpen(!dialogopen)}}/ >
       <BaseTriggerNode
         {...props}
+        id={props.id}
         icon={MousePointer2Icon}
         name="manual trigger"
         onSetting={() => {setDialogOpen(!dialogopen)}}

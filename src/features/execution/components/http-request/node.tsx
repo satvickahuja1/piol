@@ -1,10 +1,10 @@
 "use client";
 
-import type { Node, NodeProps, useReactFlow } from "@xyflow/react";
+import { Node, NodeProps, useReactFlow } from "@xyflow/react";
 import { GlobeIcon } from "lucide-react";
 import { memo, useState } from "react";
 import { BaseExecutionNode } from "../../../../components/react-flow/base-execution-node";
-import { ExecutionNodeDialog } from "./dailog";
+import { ExecutionNodeDialog, FormType } from "./dailog";
 
 type HttpRequestData = {
   endpoint?: string;
@@ -16,18 +16,37 @@ type HttpRequestData = {
 type HttpRequestType = Node<HttpRequestData>;
 
 export const HttpRequestNode = memo((props: NodeProps<HttpRequestType>) => {
+  const { setNodes } = useReactFlow();
   const nodeData = props.data as HttpRequestData;
   const [dialogopen, setDialogOpen] = useState<boolean>(false);
   const description = nodeData.endpoint
     ? `${nodeData.method || "GET"} : ${nodeData.endpoint}`
     : "not configured";
+  const handleSubmit = (values: FormType) => {
+    setNodes((nodes) =>
+      nodes.map((res) => {
+        if (res.id === props.id) {
+          return {
+            ...res,
+            data: {
+              ...res.data,
+              endpoint: values.endpoint,
+              body: values.body || " ",
+              method: values.method || "GET",
+            },
+          };
+        }
+        return res;
+      }),
+    );
+  };
   return (
     <>
       <ExecutionNodeDialog
         open={dialogopen}
-        onSubmit={() => {}}
-        
+        onSubmit={handleSubmit}
         defaultEndpoint={nodeData.endpoint}
+        defaultMethod={nodeData.method}
         onOpenChange={() => {
           setDialogOpen(!dialogopen);
         }}
@@ -41,7 +60,9 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestType>) => {
         onSetting={() => {
           setDialogOpen(!dialogopen);
         }}
-        onDoubleClick={() => {}}
+        onDoubleClick={() => {
+          setDialogOpen(!dialogopen);
+        }}
       />
     </>
   );

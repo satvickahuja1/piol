@@ -29,8 +29,6 @@ export type NodeTypeOption = {
   icon: React.ComponentType<{ className?: string }> | string;
 };
 
-
-
 const triggerNodes: NodeTypeOption[] = [
   {
     type: NodeType.MANUAL_TRIGGER,
@@ -62,36 +60,44 @@ export const NodeSelector = ({
   children,
 }: NodeSelector) => {
   const { setNodes, getNodes, screenToFlowPosition } = useReactFlow();
-  const handleNodeSelect = useCallback((selection:NodeTypeOption)=>{
-    if(selection.type === NodeType.MANUAL_TRIGGER){
-      const nodeo = getNodes()
-      const hasMultipleTrigger = nodeo.some((res)=>res.type === NodeType.MANUAL_TRIGGER)
-      if(hasMultipleTrigger){
-        toast.error(`multiple manual triggers not allowed`)
-        return
+  const handleNodeSelect = useCallback(
+    (selection: NodeTypeOption) => {
+      if (selection.type === NodeType.MANUAL_TRIGGER) {
+        const nodeo = getNodes();
+        console.log(nodeo)
+        const hasMultipleTrigger = nodeo.some(
+          (res) => res.type === NodeType.MANUAL_TRIGGER || res.type == 1,
+        ) 
+        if (hasMultipleTrigger) {
+          toast.error(`multiple manual triggers not allowed`);
+          return;
+        }
       }
-    }
-    setNodes((nodes)=>{
-      const hasInitialTrigger = nodes.some((res)=>res.type === NodeType.INITIAL)
-      const centerX = innerWidth/2
-      const centery = innerHeight/2
-      const flowPosition = screenToFlowPosition({
-        x : centerX + (Math.random()-.5)*100,
-        y : centery + (Math.random()-.5)*100
-      })
-      const newNode = {
-        id : createId(),
-        type : selection.type,
-        position : flowPosition,
-        data : {}
-      }
-      if(hasInitialTrigger){
-        return [newNode]
-      }
-      return [...nodes, newNode]
-    })
-  },[setNodes, getNodes, screenToFlowPosition, onOpenChange])
- 
+      setNodes((nodes) => {
+        const hasInitialTrigger = nodes.some(
+          (res) => res.type === NodeType.INITIAL,
+        );
+        const centerX = innerWidth / 2;
+        const centery = innerHeight / 2;
+        const flowPosition = screenToFlowPosition({
+          x: centerX + (Math.random() - 0.5) * 100,
+          y: centery + (Math.random() - 0.5) * 100,
+        });
+        const newNode = {
+          id: createId(),
+          type: selection.type,
+          position: flowPosition,
+          data: {},
+        };
+        if (hasInitialTrigger) {
+          return [newNode];
+        }
+        return [...nodes, newNode];
+      });
+    },
+    [setNodes, getNodes, screenToFlowPosition, onOpenChange],
+  );
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetTrigger asChild>{children}</SheetTrigger>
@@ -109,7 +115,9 @@ export const NodeSelector = ({
               <div
                 key={res.type}
                 className="px-5 py-4 flex w-full gap-3 hover:border-l-2  border-blue-500  items-center"
-                onClick={()=>{handleNodeSelect(res)}}
+                onClick={() => {
+                  handleNodeSelect(res);
+                }}
               >
                 <div>
                   {typeof Icon == "string" ? (
@@ -134,7 +142,9 @@ export const NodeSelector = ({
               <div
                 key={res.type}
                 className="px-5 py-4 flex w-full gap-3 items-center hover:border-l-2 border-blue-500 "
-                onClick={()=>{handleNodeSelect(res)}}
+                onClick={() => {
+                  handleNodeSelect(res);
+                }}
               >
                 <div>
                   {typeof Icon == "string" ? (
@@ -156,4 +166,4 @@ export const NodeSelector = ({
       </SheetContent>
     </Sheet>
   );
-}
+};

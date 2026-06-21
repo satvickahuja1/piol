@@ -1,29 +1,31 @@
+import { NonRetriableError } from "inngest";
 import { inngest } from "./client";
-import { openai } from "@ai-sdk/openai";
-import { generateText } from "ai";
-import * as Sentry from "@sentry/nextjs";
+import { db } from "@/drizzle";
+import { workflow } from "@/drizzle/schema";
+import { eq } from "drizzle-orm";
 
-export const inngest1 = inngest.createFunction(
-  { id: "top-1", triggers: { event: "app/top-1" } },
-  async ({
-    event,
-    step,
-  }: {
-    event: { data: { promptI: string } };
-    step: any;
-  }) => {
-    const { promptI } = event.data;
-    try {
-      Sentry.logger.error("ho gaya kaaand fat  gaya brahmaand");
-      await step.sleep("starting work in 3 seconf", 3000);
-      const { text } = await step.ai.wrap("working on love", generateText, {
-        model: openai("gpt-5-nano"),
-        prompt: promptI,
-      });
-      return text;
-    } catch (error) {
-      console.error(error);
-      return "ai generation failed";
+export const executeWorkflow = inngest.createFunction(
+  { id: "execute-workflow", triggers: { event: "workflows/execute" } },
+  async ({ event, step }) => {
+    await step.sleep("infinite", "4s");
+    const workflowId = event.data.workflowId;
+    if (!workflowId) {
+      throw new NonRetriableError("workflow id is missing");
     }
+
+    const nodes = await step.run("prepare-workflow", async () => {
+      const workflow1 = await db.query.workflow.findFirst({
+        where: eq(workflow.id, workflowId),
+        with: {
+          node: true,
+          connection: true,
+        },
+      });
+      if (!workflow1) {
+        throw new NonRetriableError("workflow not found");
+      }
+      return workflow1.node
+    });
+    return {nodes}
   },
 );

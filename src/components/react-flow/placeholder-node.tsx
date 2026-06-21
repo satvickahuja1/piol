@@ -29,6 +29,7 @@ export function PlaceholderNode({ children ,onClick}: PlaceholderNodeProps) {
         style={{ visibility: "hidden" }}
         position={Position.Top}
         isConnectable={false}
+        
       />
       <Handle
         type="source"

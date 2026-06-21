@@ -70,10 +70,25 @@ const useSuspenseWorkflowbyId = ({ id }: { id: string }) => {
   return useSuspenseQuery(trpc.workflow.getOne.queryOptions({ id }));
 };
 
+const useExecuteWorkflow = ()=>{
+  const trpc = useTRPC()
+  return useMutation(
+    trpc.execute.mutationOptions({
+      onSuccess(data, variables, onMutateResult, context) {
+        toast.success(`Workflow executed successfully ${data} executed`)
+      },
+      onError(errori){
+        toast.error(`workflow failed to execute ${errori.message}`)
+      }
+    })
+  )
+}
+
 export {
   getWorkflowList,
   useCreateWorkflow,
   useSuspenseWorkflow,
   useRemoveWorkflow,
   useSuspenseWorkflowbyId,
+  useExecuteWorkflow
 };
